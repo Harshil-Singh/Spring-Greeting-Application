@@ -11,17 +11,26 @@ public class Greeting {
 
     private String message;
 
+    // Default constructor (required for JPA)
     public Greeting() {}
 
+    // Constructor to initialize message
     public Greeting(String message) {
         this.message = message;
     }
 
+    // Getter for ID
     public Long getId() {
         return id;
     }
 
+    // Getter for message
     public String getMessage() {
         return message;
+    }
+
+    // Setter for message (Required for updating the greeting)
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

@@ -53,11 +53,19 @@ public class GreetingController {
         return response;
     }
 
-    // 🔹 UC6: List All Greetings
+    // UC6: List All Greetings
     @GetMapping("/all")
     public Map<String, List<String>> getAllGreetings() {
         Map<String, List<String>> response = new HashMap<>();
         response.put("messages", greetingService.getAllGreetings());
+        return response;
+    }
+
+    // 🔹 UC7: Update an Existing Greeting
+    @PutMapping("/update/{id}")
+    public Map<String, String> updateGreeting(@PathVariable Long id, @RequestParam String message) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", greetingService.updateGreeting(id, message));
         return response;
     }
 }

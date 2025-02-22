@@ -5,6 +5,7 @@ import com.spring.greetingapp.repository.GreetingRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service  // Marks this class as a Spring service component
@@ -46,11 +47,24 @@ public class GreetingService {
                 .orElse("Greeting not found");
     }
 
-    // 🔹 UC6: List All Greetings
+    // UC6: List All Greetings
     public List<String> getAllGreetings() {
         return greetingRepository.findAll()
                 .stream()
                 .map(Greeting::getMessage)
                 .collect(Collectors.toList());
+    }
+
+    // 🔹 UC7: Edit an Existing Greeting Message
+    public String updateGreeting(Long id, String newMessage) {
+        Optional<Greeting> optionalGreeting = greetingRepository.findById(id);
+        if (optionalGreeting.isPresent()) {
+            Greeting greeting = optionalGreeting.get();
+            greeting.setMessage(newMessage);
+            greetingRepository.save(greeting);
+            return "Greeting updated successfully with ID: " + id;
+        } else {
+            return "Greeting not found with ID: " + id;
+        }
     }
 }
