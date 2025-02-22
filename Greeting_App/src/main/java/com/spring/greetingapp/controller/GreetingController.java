@@ -4,6 +4,7 @@ import com.spring.greetingapp.model.Greeting;
 import com.spring.greetingapp.service.GreetingService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -16,36 +17,38 @@ public class GreetingController {
         this.greetingService = greetingService;
     }
 
-    // UC1: JSON response for different HTTP methods (POST, PUT, DELETE)
-    @PostMapping
-    public Map<String, String> postGreetingJson() {
-        return Map.of("message", "Hello from Greeting App (POST)");
-    }
-
-    @PutMapping
-    public Map<String, String> putGreetingJson() {
-        return Map.of("message", "Hello from Greeting App (PUT)");
-    }
-
-    @DeleteMapping
-    public Map<String, String> deleteGreetingJson() {
-        return Map.of("message", "Hello from Greeting App (DELETE)");
-    }
-
-    // UC2 & UC3: Use Service Layer for Greeting Message with optional name parameters
+    // UC2: Default Greeting Message
     @GetMapping
-    public Map<String, String> getGreetingFromService(
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName) {
-
-        String message = greetingService.getPersonalizedGreeting(firstName, lastName);
-        return Map.of("message", message);
+    public Map<String, String> getGreeting() {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", greetingService.getGreetingMessage());
+        return response;
     }
 
-    // UC4: Save Greeting Message in Repository and return JSON response
+    // UC3: Personalized Greeting
+    @GetMapping("/personalized")
+    public Map<String, String> getPersonalizedGreeting(@RequestParam(required = false) String firstName,
+                                                       @RequestParam(required = false) String lastName) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", greetingService.getPersonalizedGreeting(firstName, lastName));
+        return response;
+    }
+
+    // UC4: Save Greeting Message
     @PostMapping("/save")
     public Map<String, String> saveGreeting(@RequestParam String message) {
-        Greeting savedGreeting = greetingService.saveGreeting(message);
-        return Map.of("message", "Greeting saved with ID: " + savedGreeting.getId());
+        Greeting greeting = new Greeting(message);
+        Greeting savedGreeting = greetingService.saveGreeting(greeting);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Greeting saved with ID: " + savedGreeting.getId());
+        return response;
+    }
+
+    // 🔹 UC5: Find Greeting by ID
+    @GetMapping("/{id}")
+    public Map<String, String> findGreetingById(@PathVariable Long id) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", greetingService.findGreetingById(id));
+        return response;
     }
 }
