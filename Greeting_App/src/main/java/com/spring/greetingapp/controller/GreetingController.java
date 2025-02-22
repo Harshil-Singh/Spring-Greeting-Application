@@ -1,5 +1,6 @@
 package com.spring.greetingapp.controller;
 
+import com.spring.greetingapp.service.GreetingService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -8,27 +9,33 @@ import java.util.Map;
 @RequestMapping("/greeting")  // Base URL mapping for this controller
 public class GreetingController {
 
-    // UC1: Return JSON response for a GET request
-    @GetMapping
-    public Map<String, String> getGreeting() {
-        return Map.of("message", "Hello from Greeting App (GET)");
+    private final GreetingService greetingService;
+
+    // Constructor Injection for Service Layer
+    public GreetingController(GreetingService greetingService) {
+        this.greetingService = greetingService;
     }
 
-    // UC1: Return JSON response for a POST request
+    // UC1: Return JSON response for different HTTP Methods (excluding GET)
     @PostMapping
-    public Map<String, String> postGreeting() {
+    public Map<String, String> postGreetingJson() {
         return Map.of("message", "Hello from Greeting App (POST)");
     }
 
-    // UC1: Return JSON response for a PUT request
     @PutMapping
-    public Map<String, String> putGreeting() {
+    public Map<String, String> putGreetingJson() {
         return Map.of("message", "Hello from Greeting App (PUT)");
     }
 
-    // UC1: Return JSON response for a DELETE request
     @DeleteMapping
-    public Map<String, String> deleteGreeting() {
+    public Map<String, String> deleteGreetingJson() {
         return Map.of("message", "Hello from Greeting App (DELETE)");
+    }
+
+    // UC2: Use Service Layer for Greeting Message "Hello World"
+    @GetMapping  // Now only UC2 handles GET requests
+    public Map<String, String> getGreetingFromService() {
+        String message = greetingService.getGreetingMessage();
+        return Map.of("message", message);
     }
 }
