@@ -1,5 +1,6 @@
 package com.spring.greetingapp.controller;
 
+import com.spring.greetingapp.model.Greeting;
 import com.spring.greetingapp.service.GreetingService;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,5 +40,12 @@ public class GreetingController {
 
         String message = greetingService.getPersonalizedGreeting(firstName, lastName);
         return Map.of("message", message);
+    }
+
+    // UC4: Save Greeting Message in Repository and return JSON response
+    @PostMapping("/save")
+    public Map<String, String> saveGreeting(@RequestParam String message) {
+        Greeting savedGreeting = greetingService.saveGreeting(message);
+        return Map.of("message", "Greeting saved with ID: " + savedGreeting.getId());
     }
 }
