@@ -2,11 +2,11 @@ package com.spring.greetingapp.controller;
 
 import com.spring.greetingapp.model.Greeting;
 import com.spring.greetingapp.service.GreetingService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/greeting")
@@ -18,54 +18,59 @@ public class GreetingController {
         this.greetingService = greetingService;
     }
 
-    // UC2: Default Greeting Message
-    @GetMapping
-    public Map<String, String> getGreeting() {
-        Map<String, String> response = new HashMap<>();
-        response.put("message", greetingService.getGreetingMessage());
-        return response;
+    // UC2: Default greeting message
+    @GetMapping("/default")
+    public String getDefaultGreeting() {
+        return greetingService.getGreetingMessage();
     }
 
-    // UC3: Personalized Greeting
+    // UC3: Personalized Greeting based on User input
     @GetMapping("/personalized")
-    public Map<String, String> getPersonalizedGreeting(@RequestParam(required = false) String firstName,
-                                                       @RequestParam(required = false) String lastName) {
-        Map<String, String> response = new HashMap<>();
-        response.put("message", greetingService.getPersonalizedGreeting(firstName, lastName));
-        return response;
+    public String getPersonalizedGreeting(@RequestParam(required = false) String firstName,
+                                          @RequestParam(required = false) String lastName) {
+        return greetingService.getPersonalizedGreeting(firstName, lastName);
     }
 
-    // UC4: Save Greeting Message
+    // UC4: Save a Greeting Message
     @PostMapping("/save")
-    public Map<String, String> saveGreeting(@RequestParam String message) {
-        Greeting greeting = new Greeting(message);
-        Greeting savedGreeting = greetingService.saveGreeting(greeting);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Greeting saved with ID: " + savedGreeting.getId());
-        return response;
+    public ResponseEntity<?> saveGreeting(@RequestParam String message) {
+        Greeting savedGreeting = greetingService.saveGreeting(new Greeting(message));
+        return ResponseEntity.ok(Map.of("message", "Greeting saved with ID: " + savedGreeting.getId()));
     }
 
-    // UC5: Find Greeting by ID
+    // UC5: Get a Greeting by ID (FIXED)
     @GetMapping("/{id}")
-    public Map<String, String> findGreetingById(@PathVariable Long id) {
-        Map<String, String> response = new HashMap<>();
-        response.put("message", greetingService.findGreetingById(id));
-        return response;
+    public ResponseEntity<?> getGreetingById(@PathVariable Long id) {
+        Optional<Greeting> greeting = greetingService.getGreetingById(id);
+        if (greeting.isPresent()) {
+            return ResponseEntity.ok(greeting.get());  // Returns JSON object
+        } else {
+            return ResponseEntity.status(404).body(Map.of("message", "Greeting not found!"));
+        }
     }
 
-    // UC6: List All Greetings
+    // UC6: Get all Greeting Messages
     @GetMapping("/all")
-    public Map<String, List<String>> getAllGreetings() {
-        Map<String, List<String>> response = new HashMap<>();
-        response.put("messages", greetingService.getAllGreetings());
-        return response;
+    public Iterable<Greeting> getAllGreetings() {
+        return greetingService.getAllGreetings();
     }
 
-    // 🔹 UC7: Update an Existing Greeting
+    // UC7: Update a Greeting Message
     @PutMapping("/update/{id}")
-    public Map<String, String> updateGreeting(@PathVariable Long id, @RequestParam String message) {
-        Map<String, String> response = new HashMap<>();
-        response.put("message", greetingService.updateGreeting(id, message));
-        return response;
+    public ResponseEntity<?> updateGreeting(@PathVariable Long id, @RequestParam String message) {
+        Optional<Greeting> updatedGreeting = greetingService.updateGreeting(id, message);
+        return updatedGreeting.map(g -> ResponseEntity.ok(Map.of("message", "Greeting updated successfully!")))
+                .orElse(ResponseEntity.status(404).body(Map.of("message", "Greeting not found!")));
+    }
+
+    // UC8: Delete a Greeting Message
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteGreeting(@PathVariable Long id) {
+        boolean deleted = greetingService.deleteGreeting(id);
+        if (deleted) {
+            return ResponseEntity.ok(Map.of("message", "Greeting deleted successfully!"));
+        } else {
+            return ResponseEntity.status(404).body(Map.of("message", "Greeting not found!"));
+        }
     }
 }

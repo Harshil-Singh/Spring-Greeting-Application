@@ -4,9 +4,7 @@ import com.spring.greetingapp.model.Greeting;
 import com.spring.greetingapp.repository.GreetingRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service  // Marks this class as a Spring service component
 public class GreetingService {
@@ -35,36 +33,35 @@ public class GreetingService {
         }
     }
 
-    // UC4: Save the Greeting Message in the Repository
+    // UC4: Save a Greeting Message
     public Greeting saveGreeting(Greeting greeting) {
         return greetingRepository.save(greeting);
     }
 
-    // UC5: Find Greeting by ID
-    public String findGreetingById(Long id) {
-        return greetingRepository.findById(id)
-                .map(Greeting::getMessage)
-                .orElse("Greeting not found");
+    // UC5: Get a Greeting by ID
+    public Optional<Greeting> getGreetingById(Long id) {
+        return greetingRepository.findById(id);
     }
 
-    // UC6: List All Greetings
-    public List<String> getAllGreetings() {
-        return greetingRepository.findAll()
-                .stream()
-                .map(Greeting::getMessage)
-                .collect(Collectors.toList());
+    // UC6: Get all Greeting Messages
+    public Iterable<Greeting> getAllGreetings() {
+        return greetingRepository.findAll();
     }
 
-    // 🔹 UC7: Edit an Existing Greeting Message
-    public String updateGreeting(Long id, String newMessage) {
-        Optional<Greeting> optionalGreeting = greetingRepository.findById(id);
-        if (optionalGreeting.isPresent()) {
-            Greeting greeting = optionalGreeting.get();
+    // UC7: Update a Greeting Message by ID
+    public Optional<Greeting> updateGreeting(Long id, String newMessage) {
+        return greetingRepository.findById(id).map(greeting -> {
             greeting.setMessage(newMessage);
-            greetingRepository.save(greeting);
-            return "Greeting updated successfully with ID: " + id;
-        } else {
-            return "Greeting not found with ID: " + id;
+            return greetingRepository.save(greeting);
+        });
+    }
+
+    // UC8: Delete a Greeting Message by ID
+    public boolean deleteGreeting(Long id) {
+        if (greetingRepository.existsById(id)) {
+            greetingRepository.deleteById(id);
+            return true;
         }
+        return false;
     }
 }
