@@ -5,18 +5,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController  // Marks this class as a REST API controller
-@RequestMapping("/greeting")  // Base URL mapping for this controller
+@RestController
+@RequestMapping("/greeting")
 public class GreetingController {
 
     private final GreetingService greetingService;
 
-    // Constructor Injection for Service Layer
     public GreetingController(GreetingService greetingService) {
         this.greetingService = greetingService;
     }
 
-    // UC1: Return JSON response for different HTTP Methods (excluding GET)
+    // UC1: JSON response for different HTTP methods (POST, PUT, DELETE)
     @PostMapping
     public Map<String, String> postGreetingJson() {
         return Map.of("message", "Hello from Greeting App (POST)");
@@ -32,10 +31,13 @@ public class GreetingController {
         return Map.of("message", "Hello from Greeting App (DELETE)");
     }
 
-    // UC2: Use Service Layer for Greeting Message "Hello World"
-    @GetMapping  // Now only UC2 handles GET requests
-    public Map<String, String> getGreetingFromService() {
-        String message = greetingService.getGreetingMessage();
+    // UC2 & UC3: Use Service Layer for Greeting Message with optional name parameters
+    @GetMapping
+    public Map<String, String> getGreetingFromService(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName) {
+
+        String message = greetingService.getPersonalizedGreeting(firstName, lastName);
         return Map.of("message", message);
     }
 }
