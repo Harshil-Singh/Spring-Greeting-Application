@@ -5,6 +5,7 @@ import com.spring.greetingapp.service.GreetingService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -44,11 +45,19 @@ public class GreetingController {
         return response;
     }
 
-    // 🔹 UC5: Find Greeting by ID
+    // UC5: Find Greeting by ID
     @GetMapping("/{id}")
     public Map<String, String> findGreetingById(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
         response.put("message", greetingService.findGreetingById(id));
+        return response;
+    }
+
+    // 🔹 UC6: List All Greetings
+    @GetMapping("/all")
+    public Map<String, List<String>> getAllGreetings() {
+        Map<String, List<String>> response = new HashMap<>();
+        response.put("messages", greetingService.getAllGreetings());
         return response;
     }
 }
